@@ -1,220 +1,126 @@
-# FiadosApp
+📌 REQUERIMIENTOS FUNCIONALES
+RF1 — Autenticación de Usuarios
 
-App móvil para gestionar vendedores, clientes y fiados.
-Desarrollada en Flutter y utilizando Firebase Authentication + Firestore dentro del plan gratuito (Spark).
+La aplicación debe permitir registrar y acceder mediante correo y contraseña.
 
-🚀 Características principales
+Cada usuario debe tener un rol: admin o vendedor.
 
-Registro e inicio de sesión con email y contraseña
+El usuario debe poder recuperar su contraseña.
 
-Roles: Administrador y Vendedor
+RF2 — Gestión de Vendedores (solo admin)
 
-Gestión de clientes por vendedor
+El administrador debe poder:
 
-Registro de fiados y pagos
+Crear vendedores.
 
-Actualización automática del total pendiente
+Activar o desactivar vendedores.
 
-Resúmenes diarios para el administrador
+Ver la lista de todos los vendedores.
 
-Uso optimizado de Firestore para no generar costos
+RF3 — Gestión de Clientes (por vendedor)
 
-📌 1. Requerimientos Funcionales
-Autenticación y roles
+Cada vendedor debe poder:
 
-RF1 — Registrar usuarios con email y contraseña.
+Registrar clientes nuevos.
 
-RF2 — Iniciar/cerrar sesión.
+Editar los datos de un cliente.
 
-RF3 — Asignar roles: admin o vendedor.
+Ver la lista de sus propios clientes.
 
-RF4 — Cada usuario solo accede a sus datos.
+Ver el total pendiente del cliente.
 
-Gestión de vendedores (Admin)
+RF4 — Gestión de Fiados / Apuntes
 
-RF5 — Crear, editar y desactivar vendedores.
+El vendedor debe poder:
 
-RF6 — Ver estadísticas resumidas de vendedores.
+Registrar un nuevo fiado (monto + descripción).
 
-Gestión de clientes (Vendedor)
+Registrar pagos parciales o totales.
 
-RF7 — Registrar clientes.
+Ver el historial completo de fiados de un cliente.
 
-RF8 — Editar datos del cliente.
+Actualizar automáticamente la deuda total del cliente.
 
-RF9 — Ver lista de clientes por vendedor.
+RF5 — Acceso por Rol
 
-RF10 — Ver total pendiente del cliente.
+El vendedor solo puede acceder a su propia información.
 
-Gestión de fiados
+El administrador puede ver datos globales o agregados.
 
-RF11 — Crear un fiado por cliente.
+RF6 — Base de Datos Firestore
 
-RF12 — Registrar pagos/abonos.
+Los datos deben almacenarse usando la estructura:
+vendedores → clientes → apuntes
 
-RF13 — Actualizar el total pendiente.
+La aplicación debe actualizar datos en tiempo real usando Firestore.
 
-RF14 — Ver historial de fiados.
+RF7 — Sincronización Offline
 
-RF15 — Marcar fiado como pagado.
+La aplicación debe funcionar sin conexión a internet.
 
-Reportes
+Al reconectarse, debe sincronizar automáticamente los cambios.
 
-RF16 — Generar resumen diario por vendedor.
+📌 REQUERIMIENTOS NO FUNCIONALES
+RNF1 — Seguridad
 
-RF17 — Solo el admin accede al resumen.
+Las reglas de Firestore deben impedir que un vendedor acceda a información de otro.
 
-📌 2. Requerimientos No Funcionales
-Seguridad
+Toda comunicación debe estar cifrada mediante HTTPS.
 
-RNF1 — Firestore debe tener reglas por usuario y rol.
+Debe existir un rol admin con permisos especiales.
 
-RNF2 — Comunicación cifrada (HTTPS).
+RNF2 — Uso Controlado del Plan Gratuito Firebase
 
-Rendimiento
+Las consultas a Firestore deben estar filtradas por vendedor.
 
-RNF3 — Consultas filtradas por vendedor.
+Se debe utilizar:
 
-RNF4 — Paginación en listas (50 items máx).
+limit() para manejar listas grandes.
 
-RNF5 — Uso de caché local de Firestore.
+Caché local (modo offline).
 
-Confiabilidad
+Paginación para reducir lecturas.
 
-RNF6 — Funciona offline gracias a Firestore cache.
+No usar servicios costosos:
 
-RNF7 — Transacciones atómicas en fiados/pagos.
+Cloud Functions
 
-Escalabilidad
+Firebase Storage pesado
 
-RNF8 — Soporte para miles de documentos.
+Phone Authentication (SMS)
 
-RNF9 — No usar Cloud Functions ni servicios pagados.
+RNF3 — Rendimiento
 
-Usabilidad
+La app debe cargar clientes en menos de 300 ms usando caché local.
 
-RNF10 — Interfaz simple e intuitiva.
+Las operaciones deben ser ligeras y rápidas.
 
-RNF11 — Búsqueda rápida de clientes.
+Las escrituras deben evitar duplicación de datos.
 
-📂 3. Estructura del Proyecto
-/fiadosapp
-├─ lib/
-│  ├─ main.dart
-│  ├─ src/
-│  │  ├─ auth/
-│  │  ├─ models/
-│  │  ├─ services/
-│  │  ├─ ui/
-│  │  └─ utils/
-├─ android/
-├─ ios/
-├─ docs/
-│  └─ architecture.md
-├─ scripts/
-├─ pubspec.yaml
-└─ README.md
-
-🔥 4. Configuración de Firebase
-Activar:
-
-Authentication → Email/Password
-
-Firestore Database → Modo producción
-
-Descargar:
-
-google-services.json → android/app/
-
-(Opcional) GoogleService-Info.plist → ios/Runner/
-
-🗄 5. Estructura de Firestore
-/usuarios/{uid}
-  nombre
-  email
-  rol
-  creadoEn
-  activo
-
-/vendedores/{vendedorId}
-  nombre
-  telefono
-
-/vendedores/{vId}/clientes/{clienteId}
-  nombre
-  telefono
-  totalPendiente
-  creadoEn
-  actualizadoEn
-
-/vendedores/{vId}/clientes/{clienteId}/fiados/{fiadoId}
-  monto
-  descripcion
-  fecha
-  pagado
-  creadoEn
-
-/vendedores/{vId}/resumen/{YYYY-MM-DD}
-  totalFiadoDia
-  totalPagadoDia
-  cantidadClientes
-
-🔐 6. Reglas de Seguridad para Firestore
-
-Copia y pega esto en Firestore → Rules:
-
-rules_version = '2';
-service cloud.firestore {
-  match /databases/{database}/documents {
-
-    // Usuarios
-    match /usuarios/{uid} {
-      allow read, write: if request.auth != null && request.auth.uid == uid;
-    }
-
-    // Vendedores
-    match /vendedores/{vId} {
-      allow read, write: if request.auth != null && request.auth.uid == vId;
-
-      match /clientes/{cId} {
-        allow read, write: if request.auth != null && request.auth.uid == vId;
-
-        match /fiados/{fId} {
-          allow read, write: if request.auth != null && request.auth.uid == vId;
-        }
-      }
-
-      match /resumen/{diaId} {
-        allow read: if isAdmin();
-        allow write: if isAdmin();
-      }
-    }
-
-    function isAdmin() {
-      return request.auth != null 
-        && exists(/databases/$(database)/documents/usuarios/$(request.auth.uid))
-        && get(/databases/$(database)/documents/usuarios/$(request.auth.uid)).data.rol == "admin";
-    }
-  }
-}
-
-⚙️ 7. Instalación del Proyecto
-git clone https://github.com/<TU_USUARIO>/fiadosapp.git
-cd fiadosapp
-flutter pub get
-
-
-Coloca google-services.json en:
-
-android/app/
-
-
-Ejecuta:
-
-flutter run
-
-🧪 8. Comandos útiles
-flutter pub get
-flutter pub upgrade
-flutter clean
-flutter run
+RNF4 — Escalabilidad
+
+La estructura de Firestore debe permitir agregar vendedores sin reestructurar la base de datos.
+
+Las colecciones deben estar organizadas por vendedor para evitar lecturas globales.
+
+RNF5 — Usabilidad
+
+Interfaz simple y fácil de usar.
+
+Botones visibles para registrar fiados y pagos.
+
+Debe mostrar estados claros: cargando, sin internet, sincronizando.
+
+RNF6 — Mantenibilidad
+
+El código debe estar dividido en módulos:
+
+autenticación
+
+clientes
+
+apuntes
+
+servicios Firebase
+
+Debe existir documentación básica del flujo y la base de datos.
