@@ -1,14 +1,104 @@
-1) Resumen del proyecto
+# FiadosApp
 
-FiadosApp es una app móvil para gestionar vendedores y clientes con fiado.
-Roles: admin y vendedor.
-Backend: Firebase Authentication + Firestore (Plan Spark).
-Frontend: Flutter (Android e iOS opcional).
+App móvil para gestionar vendedores, clientes y fiados.
+Desarrollada en Flutter y utilizando Firebase Authentication + Firestore dentro del plan gratuito (Spark).
 
-2) Estructura del repositorio (sugerida)
+🚀 Características principales
+
+Registro e inicio de sesión con email y contraseña
+
+Roles: Administrador y Vendedor
+
+Gestión de clientes por vendedor
+
+Registro de fiados y pagos
+
+Actualización automática del total pendiente
+
+Resúmenes diarios para el administrador
+
+Uso optimizado de Firestore para no generar costos
+
+📌 1. Requerimientos Funcionales
+Autenticación y roles
+
+RF1 — Registrar usuarios con email y contraseña.
+
+RF2 — Iniciar/cerrar sesión.
+
+RF3 — Asignar roles: admin o vendedor.
+
+RF4 — Cada usuario solo accede a sus datos.
+
+Gestión de vendedores (Admin)
+
+RF5 — Crear, editar y desactivar vendedores.
+
+RF6 — Ver estadísticas resumidas de vendedores.
+
+Gestión de clientes (Vendedor)
+
+RF7 — Registrar clientes.
+
+RF8 — Editar datos del cliente.
+
+RF9 — Ver lista de clientes por vendedor.
+
+RF10 — Ver total pendiente del cliente.
+
+Gestión de fiados
+
+RF11 — Crear un fiado por cliente.
+
+RF12 — Registrar pagos/abonos.
+
+RF13 — Actualizar el total pendiente.
+
+RF14 — Ver historial de fiados.
+
+RF15 — Marcar fiado como pagado.
+
+Reportes
+
+RF16 — Generar resumen diario por vendedor.
+
+RF17 — Solo el admin accede al resumen.
+
+📌 2. Requerimientos No Funcionales
+Seguridad
+
+RNF1 — Firestore debe tener reglas por usuario y rol.
+
+RNF2 — Comunicación cifrada (HTTPS).
+
+Rendimiento
+
+RNF3 — Consultas filtradas por vendedor.
+
+RNF4 — Paginación en listas (50 items máx).
+
+RNF5 — Uso de caché local de Firestore.
+
+Confiabilidad
+
+RNF6 — Funciona offline gracias a Firestore cache.
+
+RNF7 — Transacciones atómicas en fiados/pagos.
+
+Escalabilidad
+
+RNF8 — Soporte para miles de documentos.
+
+RNF9 — No usar Cloud Functions ni servicios pagados.
+
+Usabilidad
+
+RNF10 — Interfaz simple e intuitiva.
+
+RNF11 — Búsqueda rápida de clientes.
+
+📂 3. Estructura del Proyecto
 /fiadosapp
-├─ android/
-├─ ios/
 ├─ lib/
 │  ├─ main.dart
 │  ├─ src/
@@ -17,98 +107,62 @@ Frontend: Flutter (Android e iOS opcional).
 │  │  ├─ services/
 │  │  ├─ ui/
 │  │  └─ utils/
-├─ scripts/
+├─ android/
+├─ ios/
 ├─ docs/
 │  └─ architecture.md
-├─ .gitignore
-├─ README.md      <- este archivo
-└─ pubspec.yaml
+├─ scripts/
+├─ pubspec.yaml
+└─ README.md
 
-3) Requisitos previos (local)
+🔥 4. Configuración de Firebase
+Activar:
 
-Cuenta Google (para Firebase).
+Authentication → Email/Password
 
-Flutter SDK instalado.
+Firestore Database → Modo producción
 
-Android Studio o VS Code + Android SDK.
+Descargar:
 
-Git y cuenta en GitHub.
+google-services.json → android/app/
 
-(Opcional) Dispositivo Android o emulador.
+(Opcional) GoogleService-Info.plist → ios/Runner/
 
-4) Paso a paso — Preparar Firebase
-4.1 Crear proyecto Firebase
-
-Accede a console.firebase.google.com y crea un proyecto (ej. fiadosapp).
-
-Añade app Android:
-
-Package name: com.tuempresa.fiadosapp (ejemplo)
-
-Descarga google-services.json y colócalo en android/app/.
-
-(Opcional) Añade app iOS y descarga GoogleService-Info.plist para ios/.
-
-4.2 Habilitar servicios
-
-Authentication → Métodos → Email/Password (activar).
-
-Firestore Database → Crear en modo producción.
-
-(Opcional) Cloud Messaging para notificaciones (es gratis).
-
-4.3 Configurar SHA-1 (Android)
-
-Genera SHA-1 con:
-
-keytool -list -v -keystore ~/.android/debug.keystore -alias androiddebugkey -storepass android -keypass android
-
-
-Añádela en la configuración de la app Android en Firebase (para integraciones futuras).
-
-5) Paso a paso — Estructura de Firestore (colecciones)
-
-Usar la siguiente estructura:
-
+🗄 5. Estructura de Firestore
 /usuarios/{uid}
-  - nombre
-  - email
-  - rol: "admin"|"vendedor"
-  - creadoEn (timestamp)
-  - activo (boolean)
+  nombre
+  email
+  rol
+  creadoEn
+  activo
 
- /vendedores/{vendedorId}
-   - nombre
-   - telefono
-   - estado
+/vendedores/{vendedorId}
+  nombre
+  telefono
 
- /vendedores/{vendedorId}/clientes/{clienteId}
-   - nombre
-   - telefono
-   - direccion
-   - totalPendiente (number)
-   - creadoEn
-   - actualizadoEn
+/vendedores/{vId}/clientes/{clienteId}
+  nombre
+  telefono
+  totalPendiente
+  creadoEn
+  actualizadoEn
 
- /vendedores/{vendedorId}/clientes/{clienteId}/fiados/{fiadoId}
-   - monto
-   - descripcion
-   - fecha
-   - pagado (boolean)
-   - creadoEn
+/vendedores/{vId}/clientes/{clienteId}/fiados/{fiadoId}
+  monto
+  descripcion
+  fecha
+  pagado
+  creadoEn
 
+/vendedores/{vId}/resumen/{YYYY-MM-DD}
+  totalFiadoDia
+  totalPagadoDia
+  cantidadClientes
 
-Adicional:
+🔐 6. Reglas de Seguridad para Firestore
 
- /vendedores/{vendedorId}/resumen/{YYYY-MM-DD}
-   - totalFiadoDia
-   - totalPagadoDia
-   - cantidadClientes
+Copia y pega esto en Firestore → Rules:
 
-
-Nota: totalPendiente y resumen evitan lecturas masivas.
-
-6) Reglas de seguridad — Copiar y pegar en Firestore Rules
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
@@ -144,149 +198,23 @@ service cloud.firestore {
   }
 }
 
-
-Objetivo: que cada vendedor solo acceda a su propio espacio y que el admin use solo los documentos resumen para las vistas generales.
-
-7) Configuración del proyecto Flutter
-7.1 Dependencias (pubspec.yaml)
-
-Agregar:
-
-dependencies:
-  flutter:
-    sdk: flutter
-  firebase_core: ^2.#
-  firebase_auth: ^4.#
-  cloud_firestore: ^4.#
-  provider: ^6.0.#
-  # otras: intl, shared_preferences, etc.
-
-7.2 Inicializar Firebase en main.dart
-void main() async {
-  WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp();
-  runApp(MyApp());
-}
-
-7.3 Colocar google-services.json (Android)
-
-android/app/google-services.json
-
-En android/build.gradle y android/app/build.gradle activar plugin google services según docs FlutterFire.
-
-8) Buenas prácticas en el código (para no consumir cuota)
-
-Filtrar siempre por vendedor_id (o usar path /vendedores/{vId}/...) para lecturas.
-
-Usar limit() en consultas largas.
-
-Preferir snapshots() con streams y listeners (firestore cache) en vez de .get() repetidos.
-
-Paginación para listas largas (startAfterDocument).
-
-Actualizar totalPendiente al escribir un fiado o cuando hay un pago — evita sumar en el cliente.
-
-Limitar tamaño de imágenes (200 KB max) o no usar Storage.
-
-Ejemplo de consulta segura:
-
-FirebaseFirestore.instance
-  .collection('vendedores')
-  .doc(vendedorId)
-  .collection('clientes')
-  .limit(50)
-  .snapshots();
-
-9) Funcionalidades mínimas (MVP) — Checklist para implementar
-
- Registro/Login (Email+Password)
-
- Crear/Desactivar vendedores (sólo admin)
-
- Listar clientes (por vendedor)
-
- Crear fiado y actualizar totalPendiente
-
- Registro de abonos y actualizar totalPendiente
-
- Historial de fiados por cliente
-
- Resumen diario (documento resumen)
-
- Firestore Rules aplicadas
-
- App configurada para modo offline (Firestore cache)
-
- Límite de creación por vendedor (anti-spam, app-side)
-
-10) Scripts útiles para el repo / comandos
-
-Inicializar repo:
-
-git init
-git add .
-git commit -m "Init: estructura FiadosApp"
-git branch -M main
-git remote add origin git@github.com:TU_USUARIO/fiadosapp.git
-git push -u origin main
-
-
-Flutter run:
-
+⚙️ 7. Instalación del Proyecto
+git clone https://github.com/<TU_USUARIO>/fiadosapp.git
+cd fiadosapp
 flutter pub get
-flutter run -d emulator-5554
 
-11) Seeds / creacion de admin (manual)
 
-Crea un usuario admin en Firebase Auth (email+password).
-Luego en Firestore usuarios/{uid} crea:
+Coloca google-services.json en:
 
-{
-  "nombre": "Admin",
-  "email": "admin@tuapp.com",
-  "rol": "admin",
-  "creadoEn": Timestamp.now(),
-  "activo": true
-}
+android/app/
 
-12) Limitaciones y cómo asegurarte de no pagar
 
-No activar Cloud Functions.
+Ejecuta:
 
-No usar Phone Auth (SMS) ni Storage masivo.
+flutter run
 
-Consultas siempre filtradas por vendedor o por documento específico.
-
-Limitar con .limit() y paginación.
-
-Monitor Firebase → Usage (ver lecturas/escrituras) ocasionalmente.
-
-13) Documentación y commits (recomendado)
-
-docs/architecture.md → diagrama y decisiones.
-
-docs/api.md → endpoints (si creas funciones futuras).
-
-Mensajes de commit: feat:, fix:, chore:, docs:.
-
-14) Plantilla de README en GitHub (resumen para el repo)
-
-Incluye al inicio del repo (README.md) el siguiente bloque:
-
-# FiadosApp
-App móvil para gestión de vendedores y clientes con fiado.
-Tech: Flutter + Firebase (Auth + Firestore)
-
-## Cómo ejecutar
-1. Clona el repo
-2. Coloca google-services.json en android/app/
-3. `flutter pub get`
-4. `flutter run`
-
-## Firebase
-- Habilitar Auth (Email/Password)
-- Crear colecciones según docs
-- Copiar reglas Firestore desde docs/firestore.rules
-
-## Licencia
-MIT
+🧪 8. Comandos útiles
+flutter pub get
+flutter pub upgrade
+flutter clean
+flutter run
